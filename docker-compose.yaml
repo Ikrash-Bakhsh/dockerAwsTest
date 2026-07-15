@@ -4,8 +4,6 @@ services:
     container_name: frontend
     depends_on:
       - backend
-    ports:
-      - "80:80"
 
   backend:
     build: ./backend
@@ -27,7 +25,7 @@ services:
       - frontend
       - backend
     ports:
-      - "100:80"
+      - "80:80"
 
   postgres:
     image: postgres:latest
