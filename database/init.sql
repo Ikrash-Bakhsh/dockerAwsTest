@@ -1,0 +1,11 @@
+CREATE TABLE employees (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    department VARCHAR(100) NOT NULL
+);
+
+INSERT INTO employees (name, email, department) VALUES
+('Ali Khan', 'ali@example.com', 'HR'),
+('Sara Ahmed', 'sara@example.com', 'IT'),
+('Usman Malik', 'usman@example.com', 'Finance');
