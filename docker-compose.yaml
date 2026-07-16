@@ -28,7 +28,7 @@ services:
       - "80:80"
 
   postgres:
-    image: postgres:latest
+    image: postgres:17
     container_name: postgres
     environment:
       POSTGRES_USER: admin
