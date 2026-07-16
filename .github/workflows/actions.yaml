@@ -47,5 +47,5 @@ jobs:
         uses: docker/build-push-action@v6
         with:
             context: ./nginx
-            pust: true
+            push: true
             tags: ikrashbakhsh/nginx:v1
