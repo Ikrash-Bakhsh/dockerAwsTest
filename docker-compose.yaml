@@ -1,12 +1,12 @@
 services:
   frontend:
-    build: ./frontend
+    build: ikrashbakhsh/frontend:v1
     container_name: frontend
     depends_on:
       - backend
 
   backend:
-    build: ./backend
+    build: ikrashbakhsh/backend:v1
     container_name: backend
     depends_on:
       - postgres
@@ -19,7 +19,7 @@ services:
       DB_NAME: database
 
   nginx:
-    build: ./nginx
+    build: ikrashbakhsh/nginx:v1
     container_name: nginx
     depends_on:
       - frontend
