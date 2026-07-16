@@ -44,9 +44,8 @@ jobs:
             push: true
             tags: ikrashbakhsh/frontend:v1
       - name: Build and Push Nginx
-        uses: docker/build-push-actions@v6
+        uses: docker/build-push-action@v6
         with:
             context: ./nginx
             pust: true
             tags: ikrashbakhsh/nginx:v1
-            
