@@ -57,7 +57,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST << EOF
 
           if [ ! -d ~/dockerAwsTest ]; then
-            git clone https://github.com/$GITHUB_REPOSITORY.git ~/dockerAwsTest
+          git clone https://github.com/$GITHUB_REPOSITORY.git ~/dockerAwsTest
           fi
 
           cd ~/dockerAwsTest
@@ -65,12 +65,18 @@ jobs:
           git fetch origin
           git reset --hard origin/main
 
+          echo "Deploying Application..."
+
           docker compose down
-
           docker compose pull
-
           docker compose up -d --remove-orphans
 
-          docker image prune -f
-          
+          echo "Deploying Monitoring..."
+
+          cd monitoring
+
+          docker compose down
+          docker compose pull
+          docker compose up -d 
+
           EOF
