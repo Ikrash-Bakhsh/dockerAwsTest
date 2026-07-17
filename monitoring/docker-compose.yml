@@ -1,0 +1,83 @@
+version: "3.9"
+
+services:
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring-net
+
+  grafana:
+    image: grafana/grafana
+
+    container_name: grafana
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - monitoring-net
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+
+    container_name: cadvisor
+
+    ports:
+      - "8080:8080"
+
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - monitoring-net
+
+  blackbox:
+    image: prom/blackbox-exporter
+
+    container_name: blackbox
+
+    volumes:
+      - ./blackbox/blackbox.yml:/config/blackbox.yml
+
+    command:
+      - '--config.file=/config/blackbox.yml'
+
+    ports:
+      - "9115:9115"
+    networks:
+      - monitoring-net
+
+  uptime-kuma:
+    image: louislam/uptime-kuma
+
+    container_name: uptime-kuma
+
+    ports:
+      - "3001:3001"
+
+    volumes:
+      - uptime-kuma:/app/data
+    networks:
+      - monitoring-net
+
+volumes:
+
+  grafana-storage:
+
+  uptime-kuma:
+
+networks:
+  monitoring-net:
+    external: true
