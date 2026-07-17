@@ -13,15 +13,37 @@
     <h1>DevOpsLab</h1>
     <p class="subtitle">Employee Management System</p>
 
+    <!-- Login -->
     <div class="card">
 
-        <input type="text" placeholder="Email">
+        <h2>Login</h2>
 
-        <input type="password" placeholder="Password">
+        <input type="text" id="loginEmail" placeholder="Email">
+
+        <input type="password" id="loginPassword" placeholder="Password">
 
         <button id="loginBtn">Login</button>
 
     </div>
+
+    <!-- Add Employee -->
+    <div class="card">
+
+        <h2>Add Employee</h2>
+
+        <input type="text" id="name" placeholder="Employee Name">
+
+        <input type="email" id="email" placeholder="Employee Email">
+
+        <input type="text" id="department" placeholder="Department">
+
+        <button id="addEmployeeBtn">
+            Add Employee
+        </button>
+
+    </div>
+
+    <!-- Employee List -->
 
     <div class="employees">
 
@@ -30,12 +52,21 @@
         <table>
 
             <thead>
+
                 <tr>
+
                     <th>ID</th>
+
                     <th>Name</th>
+
                     <th>Email</th>
+
                     <th>Department</th>
+
+                    <th>Action</th>
+
                 </tr>
+
             </thead>
 
             <tbody id="employeeTable">

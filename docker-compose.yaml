@@ -1,44 +1,72 @@
 services:
-  frontend:
-    build: ikrashbakhsh/frontend:v1
-    container_name: frontend
-    depends_on:
-      - backend
+
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    restart: always
+
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: "1234"
+      POSTGRES_DB: database
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d database"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
-    build: ikrashbakhsh/backend:v1
+    build: ./backend
     container_name: backend
+    restart: always
+
     depends_on:
-      - postgres
-    ports:
-      - "5000:5000"
+      postgres:
+        condition: service_healthy
+
     environment:
       DB_HOST: postgres
       DB_USER: admin
       DB_PASSWORD: "1234"
       DB_NAME: database
 
-  nginx:
-    build: ikrashbakhsh/nginx:v1
-    container_name: nginx
+    ports:
+      - "5000:5000"
+
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    restart: always
+
     depends_on:
-      - frontend
-      - backend
+      backend:
+        condition: service_healthy
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    restart: always
+
+    depends_on:
+      frontend:
+        condition: service_started
+
     ports:
       - "80:80"
-
-  postgres:
-    image: postgres:17
-    container_name: postgres
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: "1234"
-      POSTGRES_DB: database
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
   postgres_data:

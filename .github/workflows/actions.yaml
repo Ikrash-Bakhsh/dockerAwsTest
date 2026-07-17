@@ -1,4 +1,4 @@
-name: Aws Actions
+name: AWS CI/CD Pipeline
 
 on:
   push:
@@ -10,42 +10,67 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Deploy SSH
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ikrashbakhsh/backend:latest
+
+      - name: Build and Push Frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ikrashbakhsh/frontend:latest
+
+      - name: Build and Push Nginx
+        uses: docker/build-push-action@v6
+        with:
+          context: ./nginx
+          push: true
+          tags: |
+            ikrashbakhsh/nginx:latest
+
+      - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Deploy on server
+      - name: Deploy to EC2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << EOF
-            cd ~/dockerAwsTest
-            git pull
-            docker compose down
-            docker compose up -d --build
+          ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST << EOF
+
+          if [ ! -d ~/dockerAwsTest ]; then
+            git clone https://github.com/$GITHUB_REPOSITORY.git ~/dockerAwsTest
+          fi
+
+          cd ~/dockerAwsTest
+
+          git fetch origin
+          git reset --hard origin/main
+
+          docker compose pull
+
+          docker compose down
+
+          docker compose up -d --remove-orphans
+
+          docker image prune -f
+
           EOF
-      - name: Docker Login
-        uses: docker/login-action@v3
-        with:
-            username: ${{ secrets.DOCKER_USERNAME }}
-            password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build and Push Backend
-        uses: docker/build-push-action@v6
-        with:
-            context: ./backend
-            push: true
-            tags: ikrashbakhsh/backend:v1
-      - name: Build and push frontend
-        uses: docker/build-push-action@v6
-        with:
-            context: ./frontend
-            push: true
-            tags: ikrashbakhsh/frontend:v1
-      - name: Build and Push Nginx
-        uses: docker/build-push-action@v6
-        with:
-            context: ./nginx
-            push: true
-            tags: ikrashbakhsh/nginx:v1
