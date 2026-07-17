@@ -1,44 +1,74 @@
-backend:
-  build: ikrashbakhsh/backend:latest
-  container_name: backend
-  restart: always
+version: "3.9"
 
-  depends_on:
-    postgres:
-      condition: service_healthy
+services:
 
-  environment:
-    DB_HOST: postgres
-    DB_USER: admin
-    DB_PASSWORD: "1234"
-    DB_NAME: database
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    restart: always
 
-  ports:
-    - "5000:5000"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: "1234"
+      POSTGRES_DB: database
 
-  healthcheck:
-    test: ["CMD", "wget", "--spider", "-q", "http://localhost:5000/api/health"]
-    interval: 10s
-    timeout: 5s
-    retries: 5
+    ports:
+      - "5432:5432"
 
-frontend:
-  build: ikrashbakhsh/frontend:latest
-  container_name: frontend
-  restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  depends_on:
-    backend:
-      condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d database"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-nginx:
-  build: ikrashbakhsh/nginx:latest
-  container_name: nginx
-  restart: always
+  backend:
+    image: ikrashbakhsh/backend:latest
+    container_name: backend
+    restart: always
 
-  depends_on:
-    frontend:
-      condition: service_started
+    depends_on:
+      postgres:
+        condition: service_healthy
 
-  ports:
-    - "80:80"
+    environment:
+      DB_HOST: postgres
+      DB_USER: admin
+      DB_PASSWORD: "1234"
+      DB_NAME: database
+
+    ports:
+      - "5000:5000"
+
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    image: ikrashbakhsh/frontend:latest
+    container_name: frontend
+    restart: always
+
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  nginx:
+    image: ikrashbakhsh/nginx:latest
+    container_name: nginx
+    restart: always
+
+    depends_on:
+      frontend:
+        condition: service_started
+
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:
