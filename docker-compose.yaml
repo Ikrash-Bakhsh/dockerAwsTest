@@ -83,4 +83,4 @@ volumes:
 
 networks:
   monitoring-net:
-    name: monitoring-net
+    external: true
