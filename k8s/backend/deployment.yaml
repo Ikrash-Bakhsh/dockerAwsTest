@@ -23,7 +23,7 @@ spec:
 
           ports:
             - containerPort: 5000
-          livenessPorbe:
+          livenessProbe:
             httpGet:
               path: /api/health
               port: 5000
