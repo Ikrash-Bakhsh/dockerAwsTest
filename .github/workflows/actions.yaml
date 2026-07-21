@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - Kubernetes
 
 jobs:
   deploy:
@@ -65,18 +66,16 @@ jobs:
           git fetch origin
           git reset --hard origin/main
 
-          echo "Deploying Application..."
+          echo "Deploying Kubernetes Application..."
 
-          docker compose down
-          docker compose pull
-          docker compose up -d --remove-orphans
+          kubectl apply -R -f k8s/
 
-          echo "Deploying Monitoring..."
+          kubectl rollout restart deployment backend
+          kubectl rollout restart deployment frontend
+          kubectl rollout restart deployment nginx
 
-          cd monitoring
-
-          
-          docker compose pull
-          docker compose up -d 
+          kubectl rollout status deployment backend
+          kubectl rollout status deployment frontend
+          kubectl rollout status deployment nginx
 
           EOF
