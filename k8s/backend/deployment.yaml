@@ -23,6 +23,19 @@ spec:
 
           ports:
             - containerPort: 5000
+          livenessPorbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 5
 
           env:
             - name: DB_HOST
