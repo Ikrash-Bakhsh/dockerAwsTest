@@ -17,7 +17,7 @@ scrape_configs:
 
     static_configs:
       - targets:
-          - http://nginx
+          - http://13.60.34.209:30080
 
     relabel_configs:
 
