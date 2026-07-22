@@ -7,7 +7,10 @@ scrape_configs:
     static_configs:
       - targets:
           - cadvisor:8080
-
+  - job_name: "kube-state-metrics"
+    static_configs:
+      - targets:
+          - 13.60.34.209:30081
   - job_name: "blackbox"
 
     metrics_path: /probe
