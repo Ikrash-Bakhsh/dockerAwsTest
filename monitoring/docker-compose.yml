@@ -32,6 +32,11 @@ services:
 
     container_name: cadvisor
 
+    privileged: true
+
+    devices:
+      - /dev/kmsg:/dev/kmsg
+
     ports:
       - "8080:8080"
 
@@ -40,9 +45,13 @@ services:
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
+      - /run/k3s/containerd/containerd.sock:/run/k3s/containerd/containerd.sock:ro
+
+    command:
+      - --containerd=/run/k3s/containerd/containerd.sock
+
     networks:
       - monitoring-net
-
   blackbox:
     image: prom/blackbox-exporter
 
